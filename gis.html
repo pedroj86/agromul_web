@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgroGIS - Sistema de Información Geográfica de Parcelas</title>
+
+  <!-- Fuentes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css ">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css ">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js "></script>
+
+  <!-- Leaflet Draw -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css ">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js "></script>
+
+  <!-- Estilos -->
+  <style>
+    :root {
+      --color-primary: #4a773c; /* Verde claro */
+      --color-secondary: #8c6e3d; /* Marrón claro */
+      --color-accent: #e3b23c; /* Naranja claro */
+      --color-light: #f9f9f9; /* Fondo claro */
+      --color-dark: #333; /* Texto oscuro */
+      --color-gray: #ddd; /* Gris medio */
+      --header-height: 60px;
+      --toolbar-height: 50px;
+      --sidebar-width: 300px;
+      --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-base);
+      color: var(--color-dark);
+      background-color: var(--color-light);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      height: var(--header-height);
+      background-color: #4a773c;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+
+    .logo img {
+      height: 36px;
+      margin-right: 10px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+    }
+
+    .nav-links li {
+      margin-left: 1.5rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover {
+      opacity: 0.8;
+    }
+
+    .user-controls .btn {
+      background-color: var(--color-accent);
+      color: var(--color-dark);
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Layout Principal */
+    .container {      
+      top: calc(var(--header-height) + var(--toolbar-height));
+      height: calc(100vh - var(--header-height) - var(--toolbar-height));
+    }
+
+    .sidebar-heading {
+      padding: 1rem;
+      font-weight: bold;
+      border-bottom: 1px solid var(--color-gray);
+      background: #f5f5f5;
+    }
+
+    .parcel-list {
+      padding: 0.5rem;
+    }
+
+    .parcel-item {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--color-gray);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .parcel-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .parcel-name {
+      font-weight: 500;
+    }
+
+    /* Botón Toggle Sidebar */
+    .sidebar-toggle, .right-toggle {
+      position: absolute;
+      top: calc(var(--header-height) + 10px);
+      background-color: white;
+      border: 1px solid var(--color-gray);
+      padding: 8px;
+      cursor: pointer;
+      z-index: 500;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-toggle {
+      left: var(--sidebar-width);
+      border-left: none;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .right-toggle {
+      right: var(--sidebar-width);
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .sidebar-toggle.collapsed {
+      left: 0;
+    }
+
+    /* Mapa */
+    .map-container {
+      flex: 1;
+      position: relative;
+      height: 100%; /* Resta altura del header y toolbar */
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+    }
+
+
+    /* Panel Inferior - Edición */
+    .bottom-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      padding: 1rem;
+      border-top: 1px solid var(--color-gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 500;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .bottom-panel.active {
+      transform: translateY(0);
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-right: 1rem;
+    }
+
+    .form-group label {
+      margin-right: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.5rem;
+      border: 1px solid var(--color-gray);
+      border-radius: 4px;
+    }
+
+    /* Sidebar Derecho - Capas */
+    .sidebar-right {
+      width: var(--sidebar-width);
+      background: white;
+      border-left: 1px solid var(--color-gray);
+      overflow-y: auto;
+      position: absolute;
+      top: calc(var(--header-height) + var(--toolbar-height)); /* Justo debajo del header y toolbar */
+      bottom: 0;
+      right: 0;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .sidebar-right {
+      right: 0;
+    }
+
+    .sidebar-right.collapsed {
+      transform: translateX(100%);
+    }
+
+    .right-toggle {
+      position: absolute;
+      right: var(--sidebar-width);
+      top: 10px;
+      background: white;
+      border: 1px solid var(--color-gray);
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+      padding: 8px;
+      cursor: pointer;
+      z-index: 300;
+      transition: right 0.3s ease;
+    }
+
+    .right-toggle.collapsed {
+      right: 0;
+    }
+
+    .layer-control {
+      padding: 0.5rem 1rem;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .layer-item input[type="checkbox"],
+    .layer-item input[type="radio"] {
+      margin-right: 0.5rem;
+    }
+
+    /* Coordenadas en tiempo real */
+    .coordinates {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.8);
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      z-index: 400;
+    }
+
+    /* Controles de Leaflet */
+    #leaflet-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem; /* Espacio entre controles */
+    }
+
+  
+  /* Toolbar Navbar */
+.toolbar-navbar {
+  background-color: var(--color-primary);
+  border-bottom: 1px solid var(--color-gray);
+  display: flex;
+  justify-content: start; /* Botones alineados a la izquierda */
+  align-items: center;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  z-index: 999;
+  position: relative;
+  margin-top: var(--header-height); /* Deja espacio para el header */
+  gap: 1rem; /* Espacio entre botones */
+  flex-wrap: wrap; /* Para pantallas pequeñas */
+  overflow-x: auto; /* Si hay muchos botones */
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0.25rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Evita saltos de línea innecesarios */
+}
+
+.tool-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.tool-btn i {
+  font-size: 1rem;
+}
+
+  #leaflet-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+ 
+  </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<header class="header">
+  <div class="logo">
+    <img src="assets/logo.png" alt="Logo Sensor NPK" width="40">
+    <span>AgroGIS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#">Ver</a></li>
+    <li><a href="#">Medir</a></li>
+    <li><a href="#">Intersección</a></li>
+    <li><a href="#">Croquis</a></li>
+    <li><a href="#">Campaña 2025</a></li>
+  </ul>
+  <div class="user-controls">
+    <button class="btn" id="logout-btn">Cerrar Sesión</button>
+  </div>
+</header>
+
+<!-- Toolbar Navbar -->
+<nav class="toolbar-navbar">
+  <!-- Botones principales -->
+  <div class="tool-btn" id="draw-polygon">
+    <i class="fas fa-draw-polygon"></i> Dibujar parcela
+  </div>
+  <div class="tool-btn" id="edit-polygon">
+    <i class="fas fa-edit"></i> Editar geometría
+  </div>
+  <div class="tool-btn" id="delete-polygon">
+    <i class="fas fa-trash"></i> Eliminar
+  </div>
+  <div class="tool-btn" id="measure-tool">
+    <i class="fas fa-ruler"></i> Medir
+  </div>
+  <div class="tool-btn" id="info-tool">
+    <i class="fas fa-info-circle"></i> Info SIGPAC
+  </div>
+
+  <!-- Botón Toggle Sidebar Derecho (Capas) -->
+  <button class="tool-btn" id="right-toggle">
+    <i class="fas fa-layer-group"></i> Capas
+  </button>
+
+  <!-- Controles de Leaflet -->
+  <div id="leaflet-controls"></div>
+</nav>
+
+
+
+<script>
+  
+
+  // Opcional: Agregar evento al botón de toggle sidebar derecho
+  document.getElementById('right-toggle').addEventListener('click', function () {
+    const rightSidebar = document.getElementById('sidebar-right');
+    rightSidebar.classList.toggle('collapsed');
+  });
+</script>
+
+  <!-- Contenedor Principal -->
+  <div class="container">
+    <!-- Mapa -->
+    <div class="map-container">
+      <div id="map"></div>
+      
+      <!-- Coordenadas en tiempo real -->
+      <div class="coordinates" id="coordinates">Lat: 0.000000, Lng: 0.000000</div>
+      <!-- Panel Inferior - Edición -->
+      <div class="bottom-panel" id="bottom-panel">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div class="form-group">
+            <label for="parcel-name">Nombre:</label>
+            <input type="text" id="parcel-name" placeholder="Nombre de parcela">
+            <label for="layer-type">Tipo de Capa:</label>
+            <select id="layer-type">
+              <option value="parcela">Parcela</option>
+              <option value="recinto">Recinto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="parcel-crop">Cultivo:</label>
+            <select id="parcel-crop">
+              <option value="">Seleccione...</option>
+              <option value="olivo">Olivo</option>
+              <option value="almendro">Almendro</option>
+              <option value="viñedo">Viñedo</option>
+              <option value="cereal">Cereal</option>
+              <option value="hortaliza">Hortaliza</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="parcel-area">Superficie (ha):</label>
+            <input type="text" id="parcel-area" readonly>
+          </div>
+        </div>
+        <div>
+          <button class="btn" id="save-parcel">Guardar</button>
+          <button class="btn" id="cancel-edit" style="background: #f0f0f0; color: #333;">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Derecho - Capas -->
+    <div class="sidebar-right" id="sidebar-right">
+      <div class="sidebar-heading">Capas</div>
+
+      <!-- Capas Base -->
+      <div class="layer-control">
+        <h4>Capas Base</h4>
+        <div class="layer-item">
+          <input type="radio" name="baseLayer" id="satellite-layer" checked>
+          <label for="satellite-layer">Satélite</label>
+        </div>
+        <div class="layer-item">
+          <input type="radio" name="baseLayer" id="topo-layer">
+          <label for="topo-layer">Topográfico IGN</label>
+        </div>
+        <div class="layer-item">
+          <input type="radio" name="baseLayer" id="osm-layer">
+          <label for="osm-layer">Ortofotos</label>
+        </div>
+
+        <!-- Capas Vectoriales -->
+        <h4 style="margin-top: 1rem;">Capas Vectoriales</h4>
+        <div class="layer-item">
+          <input type="checkbox" id="sigpac-layer" checked>
+          <label for="sigpac-layer">SIGPAC (Recintos)</label>
+        </div>
+        <div class="layer-item">
+          <input type="checkbox" id="parcels-layer" checked>
+          <label for="parcels-layer">Mis Parcelas</label>
+        </div>
+
+        <!-- Mis Capas -->
+        <h4 style="margin-top: 1rem;">Mis Capas</h4>
+        <div class="layer-item">
+          <input type="checkbox" id="my-parcels-layer" checked>
+          <label for="my-parcels-layer">Mostrar Mis Parcelas</label>
+        </div>
+        <div class="layer-item">
+          <input type="checkbox" id="my-recintos-layer" checked>
+          <label for="my-recintos-layer">Mostrar Mis Recintos</label>
+        </div>
+      </div>
+
+      <!-- Información -->
+      <div class="sidebar-heading">Información</div>
+      <div class="feature-info" id="feature-info">
+        <p>Haz clic en el mapa para obtener información de SIGPAC.</p>
+      </div>
+    </div>
+
+    
+  <!-- Scripts -->
+  <script>
+    // Variables globales
+    let map, drawnItems, drawControl, currentEditingParcel = null;
+
+    // Inicializar aplicación
+    document.addEventListener("DOMContentLoaded", function () {
+      initMap();
+      initUI();
+    });
+
+    // Inicializar mapa
+    function initMap() {
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri',
+        maxZoom: 19
+      });
+      const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenTopoMap'
+      });
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      });
+
+      const sigpacLayer = L.tileLayer.wms('https://sigpac.mapa.es/fega/visor/consultas/capasWMS/wms', {
+        layers: 'recintos',
+        format: 'image/png',
+        transparent: true,
+        version: '1.3.0',
+        attribution: '&copy; SIGPAC'
+      });
+
+      map = L.map('map', {
+        center: [38.040, -1.463],
+        zoom: 13,
+        layers: [satelliteLayer,sigpacLayer]
+      });
+
+     
+      // Inicializar controles de dibujo
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Control de dibujo
+        const drawControl = new L.Control.Draw({
+          edit: {
+            featureGroup: drawnItems,
+          },
+          draw: {
+            polygon: true,
+            polyline: false,
+            rectangle: true,
+            circle: false,
+            marker: false,
+          },
+        }); 
+
+// Evento de creación de parcela
+map.on(L.Draw.Event.CREATED, function (e) {
+  const layer = e.layer;
+  drawnItems.addLayer(layer);
+  showBottomPanel(); // Muestra el panel inferior para edición
+});
+
+// Evento de edición
+map.on('draw:editstop', function () {
+  console.log('Edición completada');
+});
+
+// Evento de eliminación
+map.on('draw:deletestop', function () {
+  console.log('Elemento eliminado');
+});
+
+// Asignar eventos a los botones del toolbar-navbar
+document.getElementById('draw-polygon').addEventListener('click', function () {
+  map.removeControl(drawControl); // Desactiva otros controles
+  map.addControl(drawControl); // Activa el control de dibujo
+  drawControl._modes.start('polygon'); // Inicia el modo de dibujo
+});
+
+document.getElementById('edit-polygon').addEventListener('click', function () {
+  map.removeControl(drawControl); // Desactiva otros controles
+  map.addControl(drawControl); // Activa el control de edición
+  drawControl._modes.start('edit'); // Inicia el modo de edición
+});
+
+document.getElementById('delete-polygon').addEventListener('click', function () {
+  map.removeControl(drawControl); // Desactiva otros controles
+  map.addControl(drawControl); // Activa el control de eliminación
+  drawControl._modes.start('delete'); // Inicia el modo de eliminación
+});
+
+      // Evento de creación de parcela
+      map.on(L.Draw.Event.CREATED, function (e) {
+        const layer = e.layer;
+        drawnItems.addLayer(layer);
+        showBottomPanel();
+      });
+
+      // Mostrar coordenadas al moverse
+      map.on('mousemove', function(e) {
+        document.getElementById('coordinates').textContent =
+          `Lat: ${e.latlng.lat.toFixed(6)}, Lng: ${e.latlng.lng.toFixed(6)}`;
+      });
+
+      // Consulta SIGPAC al hacer clic
+      map.on('click', function(e) {
+        fetchSigpacInfo(e.latlng);
+      });
+
+      // Cambiar capas base
+      document.querySelectorAll('input[name="baseLayer"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+          removeCurrentBaseLayers();
+          if (this.id === 'satellite-layer') {
+            map.addLayer(satelliteLayer);
+          } else if (this.id === 'topo-layer') {
+            map.addLayer(topoLayer);
+          } else if (this.id === 'ortofotos-layer') {
+            map.addLayer(osmLayer); // Este debería ser `ortofotosLayer` si tienes uno separado
+          }
+        });
+      });
+
+      // Mostrar u ocultar SIGPAC
+      document.getElementById('sigpac-layer').addEventListener('change', function () {
+        this.checked ? map.addLayer(sigpacLayer) : map.removeLayer(sigpacLayer);
+      });
+    }
+
+    // Mover los controles de Leaflet al toolbar-navbar
+  document.addEventListener("DOMContentLoaded", function () {
+    const leafletControls = document.querySelectorAll('.leaflet-control');
+    const leafletControlsContainer = document.getElementById('leaflet-controls');
+
+    leafletControls.forEach(control => {
+      if (!leafletControlsContainer.contains(control)) {
+        leafletControlsContainer.appendChild(control);
+      }
+    });
+  });
+
+    function ifBaseLayer(layer, callback) {
+      if (layer instanceof L.TileLayer && !layer.options.noRemove) callback();
+    }
+
+    function fetchSigpacInfo(latlng) {
+      const url = 'https://sigpac.mapa.es/fega/visor/consultas/capasWMS/wms';
+
+      const params = {
+        request: 'GetFeatureInfo',
+        service: 'WMS',
+        srs: 'EPSG:4326',
+        styles: '',
+        transparent: true,
+        version: '1.3.0',
+        format: 'image/png',
+        bbox: map.getBounds().toBBoxString(),
+        height: map.getSize().y,
+        width: map.getSize().x,
+        layers: 'recintos',
+        query_layers: 'recintos',
+        info_format: 'application/json',
+        i: Math.floor(map.layerPointToContainerPoint(map.latLngToLayerPoint(latlng)).x),
+        j: Math.floor(map.layerPointToContainerPoint(map.latLngToLayerPoint(latlng)).y)
+      };
+
+      const queryString = new URLSearchParams(params).toString();
+      const fullUrl = `${url}?${queryString}`;
+
+      fetch(fullUrl)
+        .then(response => response.json())
+        .then(data => {
+          const featureInfo = document.getElementById('feature-info');
+          if (data.features && data.features.length > 0) {
+            const props = data.features[0].properties;
+            featureInfo.innerHTML = `
+              <strong>ID Recinto:</strong> ${props.IDREC}<br>
+              <strong>Uso:</strong> ${props.USO}<br>
+              <strong>Superficie:</strong> ${props.SUPERFICIE} ha
+            `;
+          } else {
+            featureInfo.innerHTML = "No se encontró información SIGPAC.";
+          }
+        })
+        .catch(err => {
+          console.error('Error consultando SIGPAC:', err);
+          document.getElementById('feature-info').innerHTML = "Error al consultar SIGPAC.";
+        });
+    }
+
+
+    function showBottomPanel() {
+      document.getElementById('bottom-panel').classList.add('active');
+    }
+
+  
+  function initUI() {
+   
+    const rightSidebar = document.getElementById('sidebar-right');
+    const leftToggle = document.getElementById('sidebar-toggle');
+    const rightToggle = document.getElementById('right-toggle');
+
+    // Alternar menú izquierdo
+    leftToggle.addEventListener('click', function () {
+      leftSidebar.classList.toggle('collapsed');
+      leftToggle.classList.toggle('collapsed');
+
+      // Ajustar posición del botón
+      if (leftSidebar.classList.contains('collapsed')) {
+        leftToggle.style.left = "0";
+      } else {
+        leftToggle.style.left = "300px";
+      }
+    });
+
+    // Alternar menú derecho
+    rightToggle.addEventListener('click', function () {
+      rightSidebar.classList.toggle('collapsed');
+      rightToggle.classList.toggle('collapsed');
+
+      // Ajustar posición del botón
+      if (rightSidebar.classList.contains('collapsed')) {
+        rightToggle.style.right = "0";
+      } else {
+        rightToggle.style.right = "300px";
+      }
+    });
+  }
+
+  
+  </script>
+</body>
+</html>

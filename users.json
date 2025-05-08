@@ -1,0 +1,87 @@
+[
+  {
+    "id": 1,
+    "nombre": "Pedro",
+    "email": "pedro@example.com",
+    "password": "111111",
+    "parcels": [
+      {
+        "id": 101,
+        "name": "Parcela 1",
+        "geoJson": "{ ... }",
+        "created_at": "2025-05-08"
+      }
+    ],
+    "recintos": [
+      {
+        "id": 201,
+        "name": "Recinto 1",
+        "geoJson": "{ ... }",
+        "created_at": "2025-05-08"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Juan Pérez",
+    "email": "juan@example.com",
+    "password": "111111",
+    "parcels": [
+      {
+        "id": 1746626461165,
+        "name": "Parcela 1",
+        "geoJson": {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -2.142334,
+                  40.178873
+                ],
+                [
+                  -2.142334,
+                  40.613952
+                ],
+                [
+                  -1.516113,
+                  40.613952
+                ],
+                [
+                  -1.516113,
+                  40.178873
+                ],
+                [
+                  -2.142334,
+                  40.178873
+                ]
+              ]
+            ]
+          }
+        },
+        "created_at": "2025-05-07T14:01:01.165Z"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "javi",
+    "email": "javi@example.com",
+    "password": "999999"
+  },
+  {
+    "id": 4,
+    "nombre": "as",
+    "email": "as@example.com",
+    "password": "123456"
+  },
+  {
+    "id": 5,
+    "nombre": "nuevo",
+    "email": "nuevo@example.com",
+    "password": "123456",
+    "parcels": []
+  }
+]

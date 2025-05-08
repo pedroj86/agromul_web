@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrarse - Sensor NPK</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo Sensor NPK" width="40">
+      <span>Sensor NPK</span>
+    </div>
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#features">Funcionalidades</a></li>
+      <li><a href="index.html#gallery">Galería</a></li>
+      <li><a href="index.html#benefits">Beneficios</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a href="#">Acceso Clientes</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero-small">
+    <div class="container">
+      <h1>Crear Cuenta</h1>
+    </div>
+  </header>
+
+  <section class="auth-form">
+    <div class="container">r
+      <form action="/register" method="POST">
+        <div class="input-group">
+          <label for="nombre"><i class="fas fa-user"></i> Nombre Completo</label>
+          <input type="text" name="nombre" id="nombre" placeholder="Tu nombre" required />
+        </div>
+        <div class="input-group">
+          <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+          <input type="email" name="email" id="email" placeholder="tu@email.com" required />
+        </div>
+        <div class="input-group">
+          <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+          <input type="password" name="password" id="password" placeholder="********" required />
+        </div>
+        <button type="submit" class="btn full">Registrarse</button>
+        <p class="auth-link">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Agromul Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

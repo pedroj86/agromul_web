@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión - Sensor NPK</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo Sensor NPK" width="40">
+      <span>Sensor NPK</span>
+    </div>
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#features">Funcionalidades</a></li>
+      <li><a href="index.html#gallery">Galería</a></li>
+      <li><a href="index.html#benefits">Beneficios</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a href="#">Acceso Clientes</a></li>
+    </ul>
+  </nav>
+  
+
+  <!-- Header -->
+  <header class="hero-small">
+    <div class="container">
+      <h1>Iniciar Sesión</h1>
+    </div>
+  </header>
+
+  <!-- Formulario de autenticación -->
+  <section class="auth-form">
+    <div class="container">
+      <form action="/login" method="POST" id="login-form">
+        <div class="input-group">
+          <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+          <input type="email" name="email" id="email" placeholder="tu@email.com" required />
+          <span class="error-message" id="email-error"></span>
+        </div>
+        <div class="input-group">
+          <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+          <input type="password" name="password" id="password" placeholder="********" required />
+          <span class="error-message" id="password-error"></span>
+        </div>
+        <button type="submit" class="btn full">Ingresar</button>
+        <p class="auth-link">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Agromul Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Script para validación básica -->
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evitar envío real del formulario
+  
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+  
+      // Limpiar mensajes de error
+      document.getElementById('email-error').textContent = '';
+      document.getElementById('password-error').textContent = '';
+  
+      let isValid = true;
+  
+      // Validaciones básicas
+      if (!email) {
+        document.getElementById('email-error').textContent = 'Por favor, ingresa tu correo electrónico.';
+        isValid = false;
+      }
+  
+      if (!password) {
+        document.getElementById('password-error').textContent = 'Por favor, ingresa tu contraseña.';
+        isValid = false;
+      }
+  
+      if (!isValid) return;
+  
+      // Enviar credenciales al servidor para validar
+      const formData = new FormData(document.getElementById('login-form'));
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data === 'success') {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userEmail', email);
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('Correo o contraseña incorrectos.');
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        alert('Ocurrió un error al iniciar sesión.');
+      });
+    });
+  </script>
+
+</body>
+</html>
