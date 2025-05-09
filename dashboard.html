@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - Sensor NPK</title>
   <link rel="stylesheet" href="style.css" />
+
   <!-- Librerías -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/js/mapa.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet @1.9.4/dist/leaflet.css" />
+
   <style>
     /* Estilos generales */
     body {
@@ -160,13 +164,12 @@
     </div>
   </footer>
 
-  <div id="user-info"></div>
-  <a href="login.html" id="logout">Cerrar sesión</a>
-
+  <!-- Firebase SDK Modular -->
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js ';
-    import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js ';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js ';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js ';
 
+    // Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
       authDomain: "agromul-web.firebaseapp.com",
@@ -175,54 +178,53 @@
       messagingSenderId: "282023614826",
       appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
       measurementId: "G-W4FMN62599"
-      };
+    };
 
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // Verificar sesión del usuario
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        document.getElementById("user-info").innerText = "Bienvenido, " + user.email;
+        document.getElementById("user-name").textContent = user.email || "Usuario";
       } else {
         window.location.href = "login.html";
       }
     });
 
-    document.getElementById("logout").addEventListener("click", (e) => {
-      e.preventDefault();
+    // Botón de cerrar sesión
+    document.querySelector(".logout-btn").addEventListener("click", () => {
       signOut(auth).then(() => {
+        alert("Sesión cerrada");
         window.location.href = "login.html";
+      }).catch((error) => {
+        alert("Error al cerrar sesión: " + error.message);
       });
-    });
-  </script>           
-
-  <!-- Proteger acceso -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      if (isLoggedIn !== 'true') {
-        alert("Debes iniciar sesión primero");
-        window.location.href = "login.html";
-      } else {
-        const userEmail = localStorage.getItem('userEmail');
-        document.body.insertAdjacentHTML('afterbegin', `<h2>Bienvenido, ${userEmail}</h2>`);
-      }
-    });
-    </script>
-
-  <!-- Mostrar nombre del usuario -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      if (isLoggedIn === 'true') {
-        const userEmail = localStorage.getItem('userEmail');
-        const userName = localStorage.getItem('userName');
-        document.querySelector('#user-name').textContent = userName || userEmail;
-      }
     });
   </script>
 
-  <!-- Scripts de gráficos -->
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet @1.9.4/dist/leaflet.js"></script>
+
+  <!-- Script para mapa -->
+  <script>
+    let map;
+
+    function initMap() {
+      if (!document.getElementById('map') || map) return;
+
+      map = L.map('map').setView([40.4637, -3.7492], 13); // Madrid como ejemplo
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+    }
+
+    document.addEventListener("DOMContentLoaded", initMap);
+  </script>
+
+  <!-- Gráficos con Chart.js -->
   <script>
     // Gauge: Humedad
     new Chart(document.getElementById('humidity-gauge'), {
@@ -313,27 +315,6 @@
       options: {
         responsive: true,
         plugins: { legend: { display: false } }
-      }
-    });
-  </script>
-
-  <!-- Iniciar mapa -->
-  <script>
-    let map;
-
-    function initMap() {
-      if (map) return;
-
-      map = L.map('map').setView([40.4637, -3.7492], 13);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      if (document.getElementById('map')) {
-        initMap();
       }
     });
   </script>
