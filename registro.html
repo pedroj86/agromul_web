@@ -9,64 +9,95 @@
 </head>
 <body>
 
-<!-- Navbar, Header y Footer omitidos por brevedad -->
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo Sensor NPK" width="40">
+      <span>Sensor NPK</span>
+    </div>
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#features">Funcionalidades</a></li>
+      <li><a href="index.html#gallery">Galería</a></li>
+      <li><a href="index.html#benefits">Beneficios</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a href="#">Acceso Clientes</a></li>
+    </ul>
+  </nav>
 
-<section class="auth-form">
-  <div class="container">
-    <form id="registerForm">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Contraseña" required />
-      <button type="submit">Registrarse</button>
-    </form>
-  </div>
-</section>
+  <!-- Header -->
+  <header class="hero-small">
+    <div class="container">
+      <h1>Crear Cuenta</h1>
+    </div>
+  </header>
 
-<!-- Firebase SDK Modular -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js ';
-  import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js ';
-  import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js ';
+  <!-- Formulario de registro -->
+  <section class="auth-form">
+    <div class="container">
+      <form id="registerForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Registrarse</button>
+      </form>
+    </div>
+  </section>
 
-  // Tu configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
-    authDomain: "agromul-web.firebaseapp.com",
-    projectId: "agromul-web",
-    storageBucket: "agromul-web.firebasestorage.app",
-    messagingSenderId: "282023614826",
-    appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
-    measurementId: "G-W4FMN62599"
-  };
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Agromul Todos los derechos reservados.</p>
+    </div>
+  </footer>
 
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  <!-- Firebase SDK Modular -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js ';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js ';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js ';
 
-  // Manejar registro
-  document.getElementById("registerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
+      authDomain: "agromul-web.firebaseapp.com",
+      projectId: "agromul-web",
+      storageBucket: "agromul-web.firebasestorage.app",
+      messagingSenderId: "282023614826",
+      appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
+      measurementId: "G-W4FMN62599"
+    };
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      alert("Usuario creado: " + userCredential.user.email);
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      // Guardar datos adicionales en Firestore
-      const user = userCredential.user;
-      await addDoc(collection(db, "users"), {
-        uid: user.uid,
-        email: user.email,
-        createdAt: new Date()
-      });
+    // Manejar registro
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-      window.location.href = "dashboard.html";
-    } catch (error) {
-      alert(error.message);
-    }
-  });
-</script>
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        alert("Usuario creado: " + userCredential.user.email);
+
+        // Guardar datos adicionales en Firestore
+        const user = userCredential.user;
+        await addDoc(collection(db, "users"), {
+          uid: user.uid,
+          email: user.email,
+          createdAt: new Date()
+        });
+
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
 
 </body>
 </html>

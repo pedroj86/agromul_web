@@ -9,53 +9,84 @@
 </head>
 <body>
 
-<!-- Navbar, Header y Footer omitidos por brevedad -->
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo Sensor NPK" width="40">
+      <span>Sensor NPK</span>
+    </div>
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#features">Funcionalidades</a></li>
+      <li><a href="index.html#gallery">Galería</a></li>
+      <li><a href="index.html#benefits">Beneficios</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a href="#">Acceso Clientes</a></li>
+    </ul>
+  </nav>
 
-<section class="auth-form">
-  <div class="container">
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Contraseña" required />
-      <button type="submit">Iniciar sesión</button>
-    </form>
-  </div>
-</section>
+  <!-- Header -->
+  <header class="hero-small">
+    <div class="container">
+      <h1>Iniciar Sesión</h1>
+    </div>
+  </header>
 
-<!-- Firebase SDK Modular -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js ';
-  import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js ';
+  <!-- Formulario de autenticación -->
+  <section class="auth-form">
+    <div class="container">
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Iniciar sesión</button>
+      </form>
+    </div>
+  </section>
 
-  // Tu configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
-    authDomain: "agromul-web.firebaseapp.com",
-    projectId: "agromul-web",
-    storageBucket: "agromul-web.firebasestorage.app",
-    messagingSenderId: "282023614826",
-    appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
-    measurementId: "G-W4FMN62599"
-  };
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Agromul Todos los derechos reservados.</p>
+    </div>
+  </footer>
 
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  <!-- Firebase SDK Modular -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js ';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js ';
 
-  // Manejar envío del formulario
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
+      authDomain: "agromul-web.firebaseapp.com",
+      projectId: "agromul-web",
+      storageBucket: "agromul-web.firebasestorage.app",
+      messagingSenderId: "282023614826",
+      appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
+      measurementId: "G-W4FMN62599"
+    };
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      alert("Bienvenido: " + userCredential.user.email);
-      window.location.href = "dashboard.html";
-    } catch (error) {
-      alert(error.message);
-    }
-  });
-</script>
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Manejar envío del formulario
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        alert("Bienvenido: " + userCredential.user.email);
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
 
 </body>
 </html>
