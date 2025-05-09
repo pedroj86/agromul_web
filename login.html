@@ -39,19 +39,10 @@
   <!-- Formulario de autenticación -->
   <section class="auth-form">
     <div class="container">
-      <form action="/login" method="POST" id="login-form">
-        <div class="input-group">
-          <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
-          <input type="email" name="email" id="email" placeholder="tu@email.com" required />
-          <span class="error-message" id="email-error"></span>
-        </div>
-        <div class="input-group">
-          <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
-          <input type="password" name="password" id="password" placeholder="********" required />
-          <span class="error-message" id="password-error"></span>
-        </div>
-        <button type="submit" class="btn full">Ingresar</button>
-        <p class="auth-link">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Iniciar sesión</button>
       </form>
     </div>
   </section>
@@ -63,58 +54,56 @@
     </div>
   </footer>
 
+  <!-- Firebase App (núcleo) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+
+  <!-- Firebase Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js ';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js ';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js ';
+  
+   const firebaseConfig = {
+    apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
+    authDomain: "agromul-web.firebaseapp.com",
+    projectId: "agromul-web",
+    storageBucket: "agromul-web.firebasestorage.app",
+    messagingSenderId: "282023614826",
+    appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
+    measurementId: "G-W4FMN62599"
+  };
+
+  
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  
+
   <!-- Script para validación básica -->
   <script>
-    document.getElementById('login-form').addEventListener('submit', function(event) {
-      event.preventDefault(); // Evitar envío real del formulario
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    alert("Bienvenido: " + userCredential.user.email);
+    window.location.href = "dashboard.html";
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
   
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-  
-      // Limpiar mensajes de error
-      document.getElementById('email-error').textContent = '';
-      document.getElementById('password-error').textContent = '';
-  
-      let isValid = true;
-  
-      // Validaciones básicas
-      if (!email) {
-        document.getElementById('email-error').textContent = 'Por favor, ingresa tu correo electrónico.';
-        isValid = false;
-      }
-  
-      if (!password) {
-        document.getElementById('password-error').textContent = 'Por favor, ingresa tu contraseña.';
-        isValid = false;
-      }
-  
-      if (!isValid) return;
-  
-      // Enviar credenciales al servidor para validar
-      const formData = new FormData(document.getElementById('login-form'));
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
-      
-      fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      .then(response => response.text())
-      .then(data => {
-        if (data === 'success') {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userEmail', email);
-          window.location.href = 'dashboard.html';
-        } else {
-          alert('Correo o contraseña incorrectos.');
-        }
-      })
-      .catch(err => {
-        console.error('Error:', err);
-        alert('Ocurrió un error al iniciar sesión.');
-      });
-    });
   </script>
 
 </body>

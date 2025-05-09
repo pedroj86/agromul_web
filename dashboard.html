@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/mapa.js"></script>
   <style>
     /* Estilos generales */
     body {
@@ -159,18 +160,55 @@
     </div>
   </footer>
 
-  <!-- Proteger acceso -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      if (isLoggedIn === 'true') {
-        document.body.classList.remove('hidden');
+  <div id="user-info"></div>
+  <a href="login.html" id="logout">Cerrar sesión</a>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js ';
+    import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js ';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
+      authDomain: "agromul-web.firebaseapp.com",
+      projectId: "agromul-web",
+      storageBucket: "agromul-web.firebasestorage.app",
+      messagingSenderId: "282023614826",
+      appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
+      measurementId: "G-W4FMN62599"
+      };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("user-info").innerText = "Bienvenido, " + user.email;
       } else {
-        alert('Debes iniciar sesión para acceder a esta página.');
-        window.location.href = 'login.html';
+        window.location.href = "login.html";
       }
     });
-  </script>
+
+    document.getElementById("logout").addEventListener("click", (e) => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    });
+  </script>           
+
+  <!-- Proteger acceso -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (isLoggedIn !== 'true') {
+        alert("Debes iniciar sesión primero");
+        window.location.href = "login.html";
+      } else {
+        const userEmail = localStorage.getItem('userEmail');
+        document.body.insertAdjacentHTML('afterbegin', `<h2>Bienvenido, ${userEmail}</h2>`);
+      }
+    });
+    </script>
 
   <!-- Mostrar nombre del usuario -->
   <script>

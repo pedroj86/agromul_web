@@ -34,21 +34,10 @@
 
   <section class="auth-form">
     <div class="container">r
-      <form action="/register" method="POST">
-        <div class="input-group">
-          <label for="nombre"><i class="fas fa-user"></i> Nombre Completo</label>
-          <input type="text" name="nombre" id="nombre" placeholder="Tu nombre" required />
-        </div>
-        <div class="input-group">
-          <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
-          <input type="email" name="email" id="email" placeholder="tu@email.com" required />
-        </div>
-        <div class="input-group">
-          <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
-          <input type="password" name="password" id="password" placeholder="********" required />
-        </div>
-        <button type="submit" class="btn full">Registrarse</button>
-        <p class="auth-link">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+      <form id="registerForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Registrarse</button>
       </form>
     </div>
   </section>
@@ -58,6 +47,53 @@
       <p>&copy; 2025 Agromul Todos los derechos reservados.</p>
     </div>
   </footer>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js ';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js ';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js ';
+  
+   const firebaseConfig = {
+    apiKey: "AIzaSyDaBAp23kS7HttX7hLXWuDLPI4NlTDPBuU",
+    authDomain: "agromul-web.firebaseapp.com",
+    projectId: "agromul-web",
+    storageBucket: "agromul-web.firebasestorage.app",
+    messagingSenderId: "282023614826",
+    appId: "1:282023614826:web:706c04fdd3f3360bd46d13",
+    measurementId: "G-W4FMN62599"
+  };
+
+  
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        alert("Usuario creado: " + userCredential.user.email);
+        
+        // Opcional: guardar datos adicionales en Firestore
+        const user = userCredential.user;
+        await addDoc(collection(db, "users"), {
+          uid: user.uid,
+          email: user.email,
+          createdAt: new Date()
+        });
+
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    });       
+
+  </script>
 
 </body>
 </html>
